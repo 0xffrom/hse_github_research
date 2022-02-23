@@ -28,6 +28,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.1")
 
     implementation("org.apache.commons:commons-csv:1.8")
+    implementation("org.junit.jupiter:junit-jupiter:5.7.0")
 
     testImplementation(kotlin("test"))
 }

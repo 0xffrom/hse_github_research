@@ -1,6 +1,6 @@
-package hse_github_research.scripts.interactors
+package hse_github_research.scripts.unused
 
-import hse_github_research.models.student.StudentCsvStartDatasetModel
+import hse_github_research.models.student.StudentGeneralInfo
 import java.io.BufferedReader
 import java.io.FileReader
 import org.apache.commons.csv.CSVFormat
@@ -8,16 +8,16 @@ import org.apache.commons.csv.CSVParser
 
 private const val DEFAULT_START_DATASET_FILE_NAME = "data/students.csv"
 
-object ParseScvStartDatasetInteractor {
+object ParseScvStartDatasetScript {
 
     fun parse(
         fileName: String = DEFAULT_START_DATASET_FILE_NAME
-    ): List<StudentCsvStartDatasetModel> {
+    ): List<StudentGeneralInfo> {
         val bufferedReader = BufferedReader(FileReader(fileName))
         val csvParser = CSVParser(bufferedReader, CSVFormat.newFormat(';'))
 
         return csvParser.drop(1).map { csvRecord ->
-            StudentCsvStartDatasetModel(
+            StudentGeneralInfo(
                 fio = csvRecord.get(0),
                 firstName = csvRecord.get(1),
                 secondName = csvRecord.get(2),

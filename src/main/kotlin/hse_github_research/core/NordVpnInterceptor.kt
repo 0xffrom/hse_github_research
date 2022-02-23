@@ -5,13 +5,23 @@ import hse_github_research.NORDVPN_USER
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 
-fun CIOEngineConfig.withNordVpnProxy() {
-    val (host, port) = AvailableServers.random()
+data class NordVpnClient(val host: String, val port: Int) {
 
-    proxy = ProxyBuilder.http("socks5://$NORDVPN_USER:$NORDVPN_PASS@$host:$port")
+    companion object {
+
+        val FIRST_CLIENT =
+            NordVpnClient(AvailableNordVpnServers[0].first, AvailableNordVpnServers[0].second)
+
+        val SECOND_CLIENT =
+            NordVpnClient(AvailableNordVpnServers[1].first, AvailableNordVpnServers[1].second)
+    }
 }
 
-val AvailableServers =
+fun CIOEngineConfig.withNordVpnProxy(client: NordVpnClient) {
+    proxy = ProxyBuilder.socks("$NORDVPN_USER:$NORDVPN_PASS@${client.host}", client.port)
+}
+
+val AvailableNordVpnServers =
     listOf(
         "amsterdam.nl.socks.nordhold.net" to 1080,
         "atlanta.us.socks.nordhold.net" to 1080,

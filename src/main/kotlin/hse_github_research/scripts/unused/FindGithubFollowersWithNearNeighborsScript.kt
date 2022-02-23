@@ -1,24 +1,24 @@
-package hse_github_research.scripts.interactors
+package hse_github_research.scripts.unused
 
-import getGithubFollowers
-import getGithubUser
-import hse_github_research.core.NetworkClient
+import hse_github_research.core.GithubProxyNetworkClient
 import hse_github_research.models.github.GithubInfo
+import hse_github_research.models.github.ResourceType
 import kotlin.time.ExperimentalTime
-import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 
 @OptIn(ExperimentalTime::class)
-object FindGithubFollowersWithNearNeighborsInteractor {
+object FindGithubFollowersWithNearNeighborsScript {
 
     private val singleSemaphore = Semaphore(1)
-    private val githubClient = NetworkClient.githubClient
+    private val githubClient = GithubProxyNetworkClient()
 
     suspend fun findFollowersBy(startUserName: String, neighbors: Int): Set<GithubInfo> {
         val githubUsers = mutableSetOf<GithubInfo>()
 
-        githubUsers.add(githubClient.getGithubUser(userName = startUserName))
+        val startUser =
+            githubClient.response<GithubInfo>(resourceType = ResourceType.CORE) { getGithubUser(startUserName) }
+        githubUsers.add(startUser!!)
 
         // TODO: add timeout
         repeat(neighbors) {
@@ -30,17 +30,23 @@ object FindGithubFollowersWithNearNeighborsInteractor {
 
     private suspend fun Set<GithubInfo>.addFollowersByUser(user: GithubInfo): Set<GithubInfo> {
         val newUsers = mutableSetOf<GithubInfo>()
-        val followers = githubClient.getGithubFollowers(user.login)
+        val followers =
+            githubClient.response<List<GithubInfo>>(resourceType = ResourceType.CORE) {
+                getGithubFollowers(user.login)
+            }
 
         followers
-            .filterNot { follower ->
+            ?.filterNot { follower ->
                 (this + newUsers).find { user -> user.login != follower.login } != null
             }
-            .forEach { follower ->
+            ?.forEach { follower ->
                 singleSemaphore.withPermit {
-                    val userByFollow = githubClient.getGithubUser(follower.login)
+                    val userByFollow =
+                        githubClient.response<GithubInfo>(resourceType = ResourceType.CORE) {
+                            getGithubUser(follower.login)
+                        }
 
-                    newUsers.add(userByFollow)
+                    newUsers.add(userByFollow!!)
                 }
             }
 

@@ -1,22 +1,24 @@
 package hse_github_research.scripts
 
 import hse_github_research.core.GithubProxyNetworkClient
-import hse_github_research.models.github.GithubInfo
+import hse_github_research.models.StudentGeneralInfo
+import hse_github_research.models.github.GithubInfoV2
 import hse_github_research.models.github.ResourceType
-import hse_github_research.models.student.StudentV1
-import hse_github_research.models.student.StudentGeneralInfo
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.nio.file.Files
-import kotlin.io.path.Path
-import kotlinx.coroutines.*
+import hse_github_research.models.student.StudentV4
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.nio.file.Files
+import kotlin.io.path.Path
 
 private val singleNetworkSemaphore = Semaphore(1)
 
@@ -28,16 +30,15 @@ fun main() {
                 withContext(Dispatchers.IO) {
                     FileInputStream("data/students_with_github_user.json")
                 }
-            ) { Json.decodeFromStream<List<StudentV1>>(this) }
+            ) { Json.decodeFromStream<List<StudentV4>>(this) }
 
         var newStudents =
-            oldStudents
-                .map { student ->
-                    TempStudent(
-                        githubInfo = student.githubUser,
-                        studentInfo = student.studentInfo,
-                    )
-                }
+            oldStudents.map { student ->
+                TempStudent(
+                    githubInfo = student.githubInfo,
+                    studentInfo = student.studentInfo,
+                )
+            }
 
         val githubProxyNetworkClient = GithubProxyNetworkClient()
 
@@ -47,15 +48,15 @@ fun main() {
 
             singleNetworkSemaphore.withPermit {
                 val followers =
-                    githubProxyNetworkClient.response<List<GithubInfo>>(
+                    githubProxyNetworkClient.response<List<GithubInfoV2>>(
                         ResourceType.CORE,
-                    ) { getGithubFollowers(oldStudent.githubUser.login) }
+                    ) { getGithubFollowers(oldStudent.githubInfo.login) }
 
                 println("FOLLOWERS = $followers")
 
                 val replacedStudents =
                     newStudents.map {
-                        if (it.githubInfo.login == oldStudent.githubUser.login) {
+                        if (it.githubInfo.login == oldStudent.githubInfo.login) {
                             TempStudent(
                                 githubInfo = it.githubInfo,
                                 studentInfo = it.studentInfo,
@@ -77,7 +78,7 @@ fun main() {
 
 @Serializable
 data class TempStudent(
-    val githubInfo: GithubInfo,
+    val githubInfo: GithubInfoV2,
     val studentInfo: StudentGeneralInfo,
-    val followers: List<GithubInfo>? = null,
+    val followers: List<GithubInfoV2>? = null,
 )

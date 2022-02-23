@@ -1,10 +1,9 @@
-package hse_github_research.models.github
+package hse_github_research.models.github.repos
 
-import java.security.acl.Owner
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Deprecated("Full model, use small model", ReplaceWith("GithubReposV2"))
+@Deprecated("")
 @Serializable
 data class GithubRepos(
     @SerialName("archive_url") val archiveUrl: String? = null,

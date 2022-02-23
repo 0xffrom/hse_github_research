@@ -1,6 +1,5 @@
 package hse_github_research.models.github
 
-import hse_github_research.models.github.limit.Plan
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

@@ -1,6 +1,5 @@
-package hse_github_research.models.github
+package hse_github_research.models.github.repos
 
-import java.security.acl.Owner
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

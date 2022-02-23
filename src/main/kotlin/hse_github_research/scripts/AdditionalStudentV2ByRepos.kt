@@ -1,15 +1,11 @@
 package hse_github_research.scripts
 
 import hse_github_research.core.GithubProxyNetworkClient
-import hse_github_research.models.github.GithubInfo
-import hse_github_research.models.github.GithubRepos
+import hse_github_research.models.StudentGeneralInfo
+import hse_github_research.models.github.GithubInfoV2
 import hse_github_research.models.github.ResourceType
-import hse_github_research.models.student.StudentGeneralInfo
-import hse_github_research.models.student.StudentV2
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.nio.file.Files
-import kotlin.io.path.Path
+import hse_github_research.models.github.repos.GithubReposV2
+import hse_github_research.models.student.StudentV4
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Semaphore
@@ -20,6 +16,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.nio.file.Files
+import kotlin.io.path.Path
 
 private val singleNetworkSemaphore = Semaphore(1)
 
@@ -28,7 +28,7 @@ fun main() {
     runBlocking {
         val oldStudents =
             with(withContext(Dispatchers.IO) { FileInputStream("data/students_v2.json") }) {
-                Json.decodeFromStream<List<StudentV2>>(this)
+                Json.decodeFromStream<List<StudentV4>>(this)
             }
 
         var newStudents =
@@ -48,7 +48,7 @@ fun main() {
 
             singleNetworkSemaphore.withPermit {
                 val repos =
-                    githubProxyNetworkClient.response<List<GithubRepos>>(
+                    githubProxyNetworkClient.response<List<GithubReposV2>>(
                         ResourceType.CORE,
                     ) { getGithubRepos(oldStudent.githubInfo.login) }
 
@@ -77,8 +77,8 @@ fun main() {
 
 @Serializable
 data class TempStudentV2(
-    val githubInfo: GithubInfo,
+    val githubInfo: GithubInfoV2,
     val studentInfo: StudentGeneralInfo,
-    val followers: List<GithubInfo>,
-    val repos: List<GithubRepos>? = null,
+    val followers: List<GithubInfoV2>,
+    val repos: List<GithubReposV2>? = null,
 )

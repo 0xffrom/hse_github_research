@@ -1,12 +1,9 @@
 package hse_github_research.scripts.unused
 
 import hse_github_research.core.GithubProxyNetworkClient
-import hse_github_research.models.github.GithubInfo
-import hse_github_research.models.github.GithubUsersResponse
+import hse_github_research.models.github.GithubInfoV2
+import hse_github_research.models.github.GithubUsersResponseV2
 import hse_github_research.models.github.ResourceType
-import java.io.File
-import java.io.FileOutputStream
-import java.time.LocalDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Semaphore
@@ -16,6 +13,9 @@ import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
+import java.io.File
+import java.io.FileOutputStream
+import java.time.LocalDateTime
 
 // Поиск подписчиков у заданных юзеров
 object GetGithubUsersByEmailsScript {
@@ -29,7 +29,7 @@ object GetGithubUsersByEmailsScript {
         withTempData: Boolean = true,
         withSaveFile: Boolean = true,
         saveFileName: String = "students.json",
-    ): List<GithubInfo> {
+    ): List<GithubInfoV2> {
         val startTime = LocalDateTime.now().toKotlinLocalDateTime().toString()
         var iterationNumber = 0
 
@@ -41,7 +41,7 @@ object GetGithubUsersByEmailsScript {
                         val results =
                             windowedEmails.mapNotNull { email ->
                                 githubClient
-                                    .response<GithubUsersResponse>(
+                                    .response<GithubUsersResponseV2>(
                                         resourceType = ResourceType.SEARCH,
                                     ) { getGithubUsersByEmail(email) }
                                     ?.users

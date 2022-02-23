@@ -1,11 +1,11 @@
 package hse_github_research.scripts.unused
 
 import hse_github_research.core.GithubProxyNetworkClient
-import hse_github_research.models.github.GithubInfo
+import hse_github_research.models.github.GithubInfoV2
 import hse_github_research.models.github.ResourceType
-import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 object FindGithubFollowersWithNearNeighborsScript {
@@ -13,11 +13,13 @@ object FindGithubFollowersWithNearNeighborsScript {
     private val singleSemaphore = Semaphore(1)
     private val githubClient = GithubProxyNetworkClient()
 
-    suspend fun findFollowersBy(startUserName: String, neighbors: Int): Set<GithubInfo> {
-        val githubUsers = mutableSetOf<GithubInfo>()
+    suspend fun findFollowersBy(startUserName: String, neighbors: Int): Set<GithubInfoV2> {
+        val githubUsers = mutableSetOf<GithubInfoV2>()
 
         val startUser =
-            githubClient.response<GithubInfo>(resourceType = ResourceType.CORE) { getGithubUser(startUserName) }
+            githubClient.response<GithubInfoV2>(resourceType = ResourceType.CORE) {
+                getGithubUser(startUserName)
+            }
         githubUsers.add(startUser!!)
 
         // TODO: add timeout
@@ -28,10 +30,12 @@ object FindGithubFollowersWithNearNeighborsScript {
         return githubUsers
     }
 
-    private suspend fun Set<GithubInfo>.addFollowersByUser(user: GithubInfo): Set<GithubInfo> {
-        val newUsers = mutableSetOf<GithubInfo>()
+    private suspend fun Set<GithubInfoV2>.addFollowersByUser(
+        user: GithubInfoV2,
+    ): Set<GithubInfoV2> {
+        val newUsers = mutableSetOf<GithubInfoV2>()
         val followers =
-            githubClient.response<List<GithubInfo>>(resourceType = ResourceType.CORE) {
+            githubClient.response<List<GithubInfoV2>>(resourceType = ResourceType.CORE) {
                 getGithubFollowers(user.login)
             }
 
@@ -42,7 +46,7 @@ object FindGithubFollowersWithNearNeighborsScript {
             ?.forEach { follower ->
                 singleSemaphore.withPermit {
                     val userByFollow =
-                        githubClient.response<GithubInfo>(resourceType = ResourceType.CORE) {
+                        githubClient.response<GithubInfoV2>(resourceType = ResourceType.CORE) {
                             getGithubUser(follower.login)
                         }
 

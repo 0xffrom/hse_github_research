@@ -1,9 +1,7 @@
-package hse_github_research.models.student
+package hse_github_research.models
 
-import java.io.Serializable
-
-@kotlinx.serialization.Serializable
-data class StudentGeneralInfo(
+// Model for import from start dataset
+data class StudentCsvStartDatasetModel(
     val fio: String,
     val firstName: String,
     val secondName: String,
@@ -14,4 +12,4 @@ data class StudentGeneralInfo(
     val numberCourse: String,
     val email: String,
     val contactType: String,
-) : Serializable
+)

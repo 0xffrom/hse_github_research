@@ -1,10 +1,11 @@
-package hse_github_research.models.github
+package hse_github_research.models.github.info
 
+import hse_github_research.models.github.GithubInfoV2
 import hse_github_research.models.github.limit.Plan
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Deprecated("Full model, use small model", ReplaceWith("GithubInfoV2"))
+@Deprecated("")
 @Serializable
 data class GithubInfo(
     @SerialName("avatar_url") val avatarUrl: String? = null,
@@ -42,9 +43,9 @@ data class GithubInfo(
     @SerialName("url") val url: String? = null
 )
 
-@Deprecated("", ReplaceWith("GithubUsersResponseV2"))
+@Deprecated("")
 @Serializable
 data class GithubUsersResponse(
     @SerialName("total_count") val totalCount: Int = 0,
-    @SerialName("items") val users: List<GithubInfo> = emptyList()
+    @SerialName("items") val users: List<GithubInfoV2> = emptyList(),
 )

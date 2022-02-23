@@ -1,18 +1,16 @@
 package hse_github_research.scripts.unused
 
-import hse_github_research.models.student.StudentGeneralInfo
-import java.io.BufferedReader
-import java.io.FileReader
+import hse_github_research.models.StudentGeneralInfo
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
+import java.io.BufferedReader
+import java.io.FileReader
 
 private const val DEFAULT_START_DATASET_FILE_NAME = "data/students.csv"
 
 object ParseScvStartDatasetScript {
 
-    fun parse(
-        fileName: String = DEFAULT_START_DATASET_FILE_NAME
-    ): List<StudentGeneralInfo> {
+    fun parse(fileName: String = DEFAULT_START_DATASET_FILE_NAME): List<StudentGeneralInfo> {
         val bufferedReader = BufferedReader(FileReader(fileName))
         val csvParser = CSVParser(bufferedReader, CSVFormat.newFormat(';'))
 
